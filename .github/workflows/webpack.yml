@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ 20.x ]
+        node-version: [20.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -39,8 +39,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ github.ref_name }}  # Use github.ref_name to get just the tag name
+          release_name: Release ${{ github.ref_name }}  # Use github.ref_name here as well
           draft: false
           prerelease: false
 
@@ -50,6 +50,7 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.TARBALL_NAME }}
           asset_name: ${{ env.TARBALL_NAME }}
-          tag: ${{ github.ref }}
+          tag: ${{ github.ref_name }}  # Use github.ref_name here as well
           overwrite: true
           body: "This is my release text"
+
