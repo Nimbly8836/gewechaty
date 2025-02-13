@@ -157,14 +157,14 @@ export class Message {
       console.error('引用消息时title不能为空')
       return
     }
-
+    const wxid = this.isRoom ? this.roomId : this.fromId
     let msg = {
       title,
       msgid: this._newMsgId,
-      wxid: this.fromId
+      wxid
     }
 
-    return quote(msg, this.fromId)
+    return quote(msg, wxid)
   }
   // 获取xml转json
   static getXmlToJson (xml) {
@@ -287,7 +287,7 @@ export class Message {
   }
   // 引用消息
   static async quote (obj) {
-    if (obj.title || obj.title === '') {
+    if (!obj.title || obj.title === '') {
       console.error('引用消息时title不能为空')
       return
     }
