@@ -1,34 +1,35 @@
-import {GetRoomInfo, InviteMember, DelMember, 
-  ChangeRoomName, GetAnnouncement, SetAnnouncement,JoinRoom, SetRoomNickName,
-  GetRoomMemberInfo, GetRoomMemberList, CreateRoom, QuitRoom, GetQrcode} from '@/api/room.js'
-import {Room} from '@/class/ROOM.js'
-import {getAppId} from '@/utils/auth.js'
-import {db} from '@/sql/index.js'
+import {
+  GetRoomInfo, InviteMember, DelMember,
+  ChangeRoomName, GetAnnouncement, SetAnnouncement, JoinRoom, SetRoomNickName,
+  GetRoomMemberInfo, GetRoomMemberList, CreateRoom, QuitRoom, GetQrcode
+} from '@/api/room.js'
+import { Room } from '@/class/ROOM.js'
+import { getAppId } from '@/utils/auth.js'
+import { db } from '@/sql/index.js'
 // import {getCached} from '@/action/common.js'
 // const appId = getAppId()
 
 export const getRoomInfo = async (roomId) => {
   let room = null
   room = db.findOneByChatroomId(roomId)
-  if(!room){ // 缓存中没有数据则从接口获取
+  if (!room) { // 缓存中没有数据则从接口获取
     room = await GetRoomInfo({
       appId: getAppId(),
       chatroomId: roomId,
     })
-    if(room){
+    if (room) {
       db.insertRoom(room)
     }
   }
-  
+
   return new Room(room)
 }
 
-
 export const getRoomLiveInfo = async (roomId) => {
   let room = await GetRoomInfo({
-      appId: getAppId(),
-      chatroomId: roomId,
-    })
+    appId: getAppId(),
+    chatroomId: roomId,
+  })
   return room
 }
 
@@ -39,13 +40,19 @@ export const updateRoomInfo = async (roomId) => {
     appId: getAppId(),
     chatroomId: roomId,
   })
+  // 获取完整的群员信息
+  const roomMemberList = await GetRoomMemberList({
+    appId: getAppId(),
+    chatroomId: roomId,
+  })
+  roomInfo.memberList = roomMemberList.memberList
 
-  if(room){ // 存在则更新否则插入
+  if (room) { // 存在则更新否则插入
     db.updateRoom(roomId, roomInfo)
-  }else{
+  } else {
     db.insertRoom(roomInfo)
   }
-  
+
   return new Room(roomInfo)
 }
 
@@ -66,34 +73,32 @@ export const delMember = async (wxids, chatroomId) => {
   })
 }
 
-
 export const find = async (query) => {
   let room = null
-  if(typeof query ==='string' ){
+  if (typeof query === 'string') {
     room = db.findOneByChatroomId(query)
-  }else if(typeof query ==='object'){
-    if(query.topic){
+  } else if (typeof query === 'object') {
+    if (query.topic) {
       room = db.findOneByChatroomName(query.topic)
-    }else if(query.id){
+    } else if (query.id) {
       room = db.findOneByChatroomId(query.id)
-    }else{
+    } else {
       console.log('不支持的查询内容')
       return null
     }
   }
-  return room? new Room(room) : null
+  return room ? new Room(room) : null
 }
-
 
 export const findAll = async (query) => {
   let arr = []
   let rows = []
-  if(!query){
+  if (!query) {
     rows = db.findAllRooms()
-  }else if(typeof query ==='object'){
-    if(query.topic){
+  } else if (typeof query === 'object') {
+    if (query.topic) {
       rows = db.findAllByChatroomName(query.topic)
-    }else{
+    } else {
       console.log('不支持的查询内容')
       return arr
     }
@@ -128,7 +133,7 @@ export const setAnnouncement = async (chatroomId, content) => {
 }
 
 export const getRoomMemberInfo = async (chatroomId, wxid) => {
-  const {memberList} = await GetRoomMemberList({
+  const { memberList } = await GetRoomMemberList({
     appId: getAppId(),
     chatroomId
   })
@@ -144,7 +149,7 @@ export const getRoomMemberList = async (chatroomId) => {
 }
 
 export const createRoom = async (contactList, chatroomName) => {
-  const {chatroomId} = await CreateRoom({
+  const { chatroomId } = await CreateRoom({
     appId: getAppId(),
     wxids: contactList.map(item => item._wxid),
   })
