@@ -15,9 +15,10 @@ import { getLocalIPAddress } from "@/utils/index.js";
 import {logout, login} from '@/action/login.js'
 import { Friendship } from './class/FRIENDSHIP'
 import {getMyInfo, getMyQrcode, setMyInfo, setPrivacy, setAvatar, getDevices} from '@/action/personal.js'
-import {getAppId, getToken, getUuid} from '@/utils/auth.js'
+import {ds, getAppId, getToken, getUuid} from '@/utils/auth.js'
 import {db} from '@/sql/index.js'
 import {cacheAllContact} from '@/action/contact.js'
+import DS from 'ds'
 
 
 export class GeweBot {
@@ -31,14 +32,17 @@ export class GeweBot {
     this.base_api = this.base_api || `http://${ip}:2531/v2/api`;
     this.file_api = this.file_api || `http://${ip}:2532/download`;
     this.route = this.route || '/getWechatCallBack'
-    this.use_cache = true
+    this.use_cache = option.use_cache || true
     this.debug = this.debug || false
+    this.cache_path = option.cache_path || ''
     // 初始化类
     this.Contact = Contact;
     this.Room = Room
     this.Friendship = Friendship
     this.Message = Message
     this.db = db
+    this.ds = this.cache_path + '/ds.json' || 'ds.json'
+    ds = new DS(this.ds)
     // 初始化事件监听器
   }
   async start(){
@@ -85,7 +89,7 @@ export class GeweBot {
   deviceList(){ // 获取设备列表
     return getDevices()
   }
- 
+
   async refreshContactCache(){ // 刷新联系人缓存
     return await cacheAllContact()
   }
