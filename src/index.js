@@ -19,6 +19,7 @@ import {ds, getAppId, getToken, getUuid} from '@/utils/auth.js'
 import {db} from '@/sql/index.js'
 import {cacheAllContact} from '@/action/contact.js'
 import DS from 'ds'
+import { CheckOnline } from '@/api/login'
 
 
 export class GeweBot {
@@ -61,6 +62,10 @@ export class GeweBot {
   logout(){ // return boolean
     // 退出登录
     return logout()
+  }
+  checkOnline(){ // return boolean
+    // 检查登录状态
+    return CheckOnline()
   }
   async info(){ // 获取个人信息
     return await getMyInfo()

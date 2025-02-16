@@ -14,6 +14,7 @@ declare module 'gewechaty' {
       on(event: 'scan', listener: (qrcode: QRCode) => void): void;
       login(): Promise<boolean>;
       logout(): Promise<boolean>;
+      checkOnline(): Promise<boolean>;
       info(): Promise<ContactSelf>;
       qrcode(): Promise<string>;
       getAppId(): string;
