@@ -12,6 +12,35 @@ export class Filebox {
     this.type = ''
     this.name = ''
   }
+  static fromBuff(fileBuff, fileName, time = 1000 * 60 * 5){
+    try {
+      const tempDir = join(staticUrl, tempname)
+      // 检查 temp 目录是否存在，如果不存在则创建
+      if (!fs.existsSync(tempDir)) {
+        fs.mkdirSync(tempDir);
+      }
+      // 构建目标文件的路径
+      const destPath = join(tempDir, fileName);
+      // 复制文件到 temp 目录
+      fs.writeFileSync(destPath, fileBuff);
+      const url = joinURL(proxyUrl, tempname, fileName)
+      const t = setTimeout(() => {
+        // 删除文件
+        fs.unlink(destPath, (err) => {
+          if (err) {
+            console.error('删除文件时出错:', err);
+          } else {
+            console.log(`文件 ${destPath} 已删除`);
+          }
+        });
+        clearTimeout(t)
+      }, time);
+      return Filebox.fromUrl(url)
+    } catch (err) {
+      console.error('复制文件时出错:', err);
+    }
+  }
+
   static fromUrl(url, forceType){
     const instance = new Filebox()
     const supportType = ['image', 'file']
