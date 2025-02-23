@@ -70,6 +70,6 @@ module.exports = {
   // 添加性能优化配置
   optimization: {
     moduleIds: 'deterministic', // 优化模块 ID
-    minimize: true, // 启用压缩
+    minimize: false, // 启用压缩
   }
 };
