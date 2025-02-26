@@ -65,7 +65,9 @@ export class GeweBot {
   }
   checkOnline(){ // return boolean
     // 检查登录状态
-    return CheckOnline()
+    return CheckOnline({
+      appId: getAppId(),
+    })
   }
   async info(){ // 获取个人信息
     return await getMyInfo()
