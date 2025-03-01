@@ -11,6 +11,7 @@ declare module 'gewechaty' {
         }>;
 
         on(event: 'message', listener: (msg: Message) => void): void;
+        on(event: 'revoke', listener: (msg: Message) => void): void;
         on(event: 'friendship', listener: (friendship: Friendship) => void): void;
         on(event: 'room-invite', listener: (roomInvitation: RoomInvitation) => void): void;
         on(event: 'all', listener: (payload: any) => void): void;
