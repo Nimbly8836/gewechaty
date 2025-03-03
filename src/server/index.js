@@ -170,6 +170,9 @@ export const startServe = (option) => {
           reject('获取个人信息失败')
         }
         let dbName = myInfo.wxid + '.db'
+        if (!dbName) {
+          reject('获取个人信息失败')
+        }
         if (option.cache_path) {
           dbName = option.cache_path + '/' + dbName
         }
@@ -182,7 +185,7 @@ export const startServe = (option) => {
           db.createRoomTable()
           // 缓存所有联系人 并保存到本地数据库
           console.log('本地数据初始化，可能需要耗费点时间，耐心等待...')
-          await delay(1000) // 防止异步
+          await delay(1234) // 防止异步
           await cacheAllContact()
           console.log('数据初始化完毕')
         } else {
