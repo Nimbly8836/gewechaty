@@ -22,6 +22,7 @@ import {RoomInvitation} from '@/class/ROOMINVITATION.js'
 import {getRoomLiveInfo} from '@/action/room.js'
 import { Friendship } from '@/class/FRIENDSHIP';
 import * as ds from '@/utils/auth';
+import { getMyInfo } from '@/action/personal'
 export const bot = botEmitter
 export let staticUrl = 'static'
 export let proxyUrl = ''
@@ -235,7 +236,7 @@ export const startServe = async (option) => {
           console.log('数据初始化完毕')
         }
       } else {
-        db.connect(dbPath)
+        db.connect(dbName)
         console.log('存在缓存数据，启用缓存')
       }
       setCached(true) // NOTE: 对应的状态好像没用上

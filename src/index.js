@@ -16,7 +16,6 @@ import { getLocalIPAddress } from "@/utils/index.js";
 import {logout, login} from '@/action/login.js'
 import { Friendship } from './class/FRIENDSHIP'
 import {getMyInfo, getMyQrcode, setMyInfo, setPrivacy, setAvatar, getDevices} from '@/action/personal.js'
-import {createDS, getAppId, getToken, getUuid} from '@/utils/auth.js'
 import {ds, getAppId, getToken, getUuid} from '@/utils/auth.js'
 import {db} from '@/sql/index.js'
 import {cacheAllContact} from '@/action/contact.js'
