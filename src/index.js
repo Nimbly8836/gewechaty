@@ -9,18 +9,26 @@ export {Voice} from '@/class/VOICE.js'
 export {Emoji} from '@/class/EMOJI.js'
 export {MiniApp} from '@/class/MINIAPP.js'
 export {AppMsg} from '@/class/APPMSG.js'
+export {Contact} from '@/class/CONTACT.js'
 import {Message} from '@/class/MESSAGE.js'
 import {Room} from '@/class/ROOM.js'
 import { getLocalIPAddress } from "@/utils/index.js";
 import {logout, login} from '@/action/login.js'
 import { Friendship } from './class/FRIENDSHIP'
 import {getMyInfo, getMyQrcode, setMyInfo, setPrivacy, setAvatar, getDevices} from '@/action/personal.js'
+import {createDS, getAppId, getToken, getUuid} from '@/utils/auth.js'
 import {ds, getAppId, getToken, getUuid} from '@/utils/auth.js'
 import {db} from '@/sql/index.js'
 import {cacheAllContact} from '@/action/contact.js'
+import { join } from 'node:path';
+import { mkdirSync, existsSync } from 'node:fs'
 import DS from 'ds'
 import { CheckOnline } from '@/api/login'
 
+function getDefaultDataPath() {
+  const dsPath = join(process.cwd(), 'ds.json')
+  return existsSync(dsPath) ? process.cwd() : join(process.cwd(), 'data')
+}
 
 export class GeweBot {
   constructor(option = {}) {

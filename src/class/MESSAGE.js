@@ -10,7 +10,6 @@ import { MessageType } from '@/type/MessageType'
 export class Message {
   // 静态属性
   static Type = MessageType
-
   // 实例属性
   constructor (data) {
     // 从 JSON 数据结构中提取所需信息
@@ -70,54 +69,46 @@ export class Message {
   to () {
     return getContact(this.toId)
   }
-
   // 是否是群聊消息 是则返回群信息
   async room () {
-    if (!this.isRoom) return false
+    if (!this.isRoom) return false;
     if (!this._roomInfo) {
-      this._roomInfo = await getRoomInfo(this.roomId)
+      this._roomInfo = await getRoomInfo(this.roomId);
     }
-    return this._roomInfo
+    return this._roomInfo;
   }
-
   // 消息内容
   text () {
-    return this._text
+    return this._text;
   }
-
   // 发送消息
   async say (textOrContactOrFileOrUrl) {
     const res = await say(textOrContactOrFileOrUrl, this.isRoom ? this.roomId : this.fromId)
     return new ResponseMsg(res)
   }
-
   // 消息类型
   type () {
     return Message.getType(this._type, this.text())
   }
-
   // 是否是自己发的消息
   self () {
-    return this._self
+    return this._self;
   }
-
   // 获取@的联系人 ..todo
   async mention () {
     // 根据消息内容模拟提到的联系人
     console.log('暂不支持')
-    return null
+    return null;
   }
-
   // 是否被@了
   async mentionSelf () {
     if (!this.isRoom || !this._msgSource) {
-      return false
+      return false;
     }
-    const result = Message.getXmlToJson(this._msgSource)
-    const atUserList = result.msgsource.atuserlist
-    return atUserList?.split(',').includes(this.wxid)
+    const result = Message.getXmlToJson(this._msgSource);
+    const atUserList = result.msgsource.atuserlist;
+    return atUserList?.split(',').includes(this.wxid);
   }
-
   // 消息转发
   async forward (to) {
     if (!to) {
@@ -128,43 +119,39 @@ export class Message {
   }
 
   date () {
-    return new Date(this._date)
+    return new Date(this._date);
   }
 
   age () {
-    const now = Date.now()
-    return Math.floor((now - this._date) / 1000) // 以秒为单位计算消息的年龄
+    const now = Date.now();
+    return Math.floor((now - this._date) / 1000); // 以秒为单位计算消息的年龄
   }
-
   // 获取名片 。。。todo
   async toContact () {
-    console.log('暂不支持')
-    return null
+    console.log('暂不支持');
+    return null;
   }
-
   // 获取链接。。。todo
   async toUrlLink () {
     console.log('暂不支持')
-    return null
+    return null;
   }
-
   // 获取图片。。。todo
   async toFileBox (type = 2) {
     if (this._type !== 3) {
-      console.log('不是图片类型，无法调用toFileBox方法')
-      return null
+      console.log('不是图片类型，无法调用toFileBox方法');
+      return null;
     }
     let xml = this._text
 
     try {
-      const url = await toFileBox(xml, type)
+      const url = await toFileBox(xml, type);
       return Filebox.toDownload(url)
     } catch (e) {
       console.error(e)
       return null
     }
   }
-
   // 引用消息
   async quote (title) {
     if (!title || title === '') {
@@ -180,17 +167,15 @@ export class Message {
 
     return quote(msg, wxid)
   }
-
   // 获取xml转json
   static getXmlToJson (xml) {
     const parser = new XMLParser({
       ignoreAttributes: false, // 不忽略属性
       attributeNamePrefix: '', // 移除默认的属性前缀
-    })
-    let jObj = parser.parse(xml)
+    });
+    let jObj = parser.parse(xml);
     return jObj
   }
-
   // 静态方法
   static async find (query) {
     return await find(query)
@@ -206,97 +191,92 @@ export class Message {
     try {
       switch (type) {
         case 1:
-          return MessageType.Text
-          break
+          return MessageType.Text;
         case 3:
-          return MessageType.Image
-          break
+          return MessageType.Image;
         case 34:
-          return MessageType.Voice
-          break
+          return MessageType.Voice;
         case 37:
-          return MessageType.AddFriend
-          break
+          return MessageType.AddFriend;
         case 42:
-          return MessageType.Contact
-          break
+          return MessageType.Contact;
         case 43:
-          return MessageType.Video
-          break
+          return MessageType.Video;
         case 47:
-          return MessageType.Emoji
-          break
+          return MessageType.Emoji;
         case 48:
           return MessageType.Location
-          break
         case 49:
-          jObj = Message.getXmlToJson(xml)
+          jObj = Message.getXmlToJson(xml);
           // console.log(jObj)
           if (jObj.msg.appmsg.type === 5) {
             if (jObj.msg.appmsg.title === '邀请你加入群聊') {
-              return MessageType.RoomInvitation
+              return MessageType.RoomInvitation;
             } else { // 公众号链接
-              return MessageType.Link
+              return MessageType.Link;
             }
           } else if (jObj.msg.appmsg.type === 6) {
-            return MessageType.File
+            return MessageType.File;
           } else if (jObj.msg.appmsg.type === 17) {
-            return MessageType.RealTimeLocation
+            return MessageType.RealTimeLocation;
           } else if (jObj.msg.appmsg.type === 19) {
-            return MessageType.ChatHistroy
+            return MessageType.ChatHistroy;
           } else if (jObj.msg.appmsg.type === 33 || jObj.msg.appmsg.type === 36) {
-            return MessageType.MiniApp
+            return MessageType.MiniApp;
           } else if (jObj.msg.appmsg.type === 51) {
-            return MessageType.VideoAccount
+            return MessageType.VideoAccount;
           } else if (jObj.msg.appmsg.type === 57) {
-            return MessageType.Quote
+            return MessageType.Quote;
           } else if (jObj.msg.appmsg.type === 74) {
-            return MessageType.FileStart
+            return MessageType.FileStart;
           } else if (jObj.msg.appmsg.type === 2000) {
-            return MessageType.Transfer
+            return MessageType.Transfer;
           } else if (jObj.msg.appmsg.type === 2001) {
-            return MessageType.RedPacket
+            return MessageType.RedPacket;
           }
-          break
+          break;
         case 50:
-          //VOIP挂断
-          break
+          return MessageType.VoipHangup; // 微信电话挂断
         case 51:
           //状态通知
-          jObj = Message.getXmlToJson(xml)
+          jObj = Message.getXmlToJson(xml);
           if (jObj.msg.name === 'MomentsTimelineStatus') {
             //新的朋友圈消息
           } else if (jObj.msg.name === 'lastMessage') {
             //群聊消息
           }
-          break
+          break;
         case 56:
-          //语音群聊
-          break
+          return MessageType.RoomVoip; // 群语音
         case 10000:
           //群通知
-          break
+          break;
         case 10002:
-          jObj = Message.getXmlToJson(xml)
+          jObj = Message.getXmlToJson(xml);
           if (jObj.sysmsg.type === 'revokemsg') {
-            return MessageType.Revoke
+            return MessageType.Revoke;
           } else if (jObj.sysmsg.type === 'pat') {
-            return MessageType.Pat
+            return MessageType.Pat;
           } else if (jObj.sysmsg.type === 'functionmsg') {
-            return MessageType.FunctionMsg
+            return MessageType.FunctionMsg;
           } else if (jObj.sysmsg.type === 'ilinkvoip') {
-            //voip邀请
-            return MessageType.Voip
+            // voip邀请
+            return MessageType.Voip;
           } else if (jObj.sysmsg.type === 'trackmsg') {
-            //实时位置更新
+            // 实时位置更新
           }
-          break
+          break;
         default:
           return MessageType.Unknown
       }
     } catch (e) {
-      return MessageType.Unknown
+      // Do nothing
     }
+
+    // 不管是因为报错，还是未被任何 case 匹配，
+    // 还是匹配了之后因未处理而 break 下来，都需要返回未知类型，
+    // 以避免返回 undefined 的情况
+    return MessageType.Unknown;
   }
 
   static revoke (obj) {

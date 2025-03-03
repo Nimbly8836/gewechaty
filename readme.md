@@ -1,27 +1,12 @@
 # gewechaty
 
+## 由于依赖项目Gewechat镜像目前已经停止下载，本项目不再维护（已有镜像的用户可以继续使用）。
+
 ## 一、简介
 
 gewechaty 是基于[Gewechat](https://github.com/Devo919/Gewechat?tab=readme-ov-file)项目的二次封装，提供了更方便的使用方式。参考 wechaty 的 api 实现，以满足更快速开发的需求（由于gewechat接口限制无法完全平滑迁移只是提供更便捷的使用方法，如有些同步的方法需要改为异步）。
 
 本项目基于 [Gewechat](https://github.com/Devo919/Gewechat?tab=readme-ov-file)，请先确认 Gewechat 已经能够正常启动，否则无法使用本插件。
-
-感谢群里大佬 `@1H` 重构了镜像，让gewe镜像不依赖cgroup和docker --privilege可以在更高版本的ubuntu，debian以及macos系统上运行。
-镜像地址 `ghcr.io/tu1h/wechotd/wechotd:alpine`或`registry.cn-chengdu.aliyuncs.com/tu1h/wechotd:alpine`
-导入重构后的镜像
-
-```bash
-  docker pull registry.cn-chengdu.aliyuncs.com/tu1h/wechotd:alpine
-  docker tag registry.cn-chengdu.aliyuncs.com/tu1h/wechotd:alpine gewe
-```
-运行镜像容器
-
-```bash
-  mkdir -p /root/temp
-  docker run -itd -v /root/temp:/root/temp -p 2531:2531 -p 2532:2532 --name=gewe gewe
-  #将容器设置成开机运行
-  docker update --restart=always gewe
-```
 
 - 项目不断完善中，请务必使用最新版本。
 - 将在项目运行根目录创建一个ds.json 用于存储 appid token 和uuid 同时创建 ${appid}.db 用于缓存联系人和群信息，以确保可以使用联系人昵称和群名称查询相关信息，无需直接使用wxid查询， 如果确实需要使用wxid查询可以直接传入wxid，如`bot.Contact.find({id: 'wxid_xxxx'})`。
@@ -200,17 +185,19 @@ bot
     if(room){
       room.on('join', async (room, contact) => {
         const urlLink = new UrlLink({
-          title: `${contact._name}加入了群聊`,
-          desc: `微信号：${contact._wxid}`,
-          linkUrl: 'https://www.baidu.com'
+          title: `${contact.name()}加入了群聊`,
+          desc: `微信号：${contact.wxid()}`,
+          linkUrl: 'https://www.example.com',
+          thumbUrl: `${bot.proxy}/example/avatar.jpg`
         })
         room.say(urlLink)
       })
       room.on('leave', async (room, contact) => {
         const urlLink = new UrlLink({
-          title: `${contact._name}退出了群聊`,
-          desc: `微信号：${contact._wxid}`,
-          linkUrl: 'https://www.baidu.com'
+          title: `${contact.name()}退出了群聊`,
+          desc: `微信号：${contact.wxid()}`,
+          linkUrl: 'https://www.example.com',
+          thumbUrl: `${bot.proxy}/example/avatar.jpg`
         })
         room.say(urlLink)
       })
@@ -273,7 +260,7 @@ const onMessage = async (msg) => {
     title: "测试链接",
     desc: "测试链接",
     thumbUrl: `${bot.proxy}/test/avatar.jpg`,
-    linkUrl: "https://www.baidu.com",
+    linkUrl: "https://www.example.com",
   });
   await msg.say(urlLink);
 
@@ -368,6 +355,7 @@ const bot = new GeweBot({
   route: "/getWechatCallBack", // 本地回调接口route 默认为 `/getWechatCallBack` 最终地址为 `http://本机ip:port/getWechatCallBack`
   base_api: process.env.WEGE_BASE_API_URL, // 基础api地址base_api 默认为 `http://本机ip:2531/v2/api`
   file_api: process.env.WEGE_FILE_API_URL, // 文件api地址base_api 默认为 `http://本机ip:2532/download`,
+  data_dir: './data', // 数据存储路径 默认为工作目录下的data文件夹
 });
 // 如果docker 和GeweBot在同一台电脑上 可以直接使用 new GeweBot() 即可
 ```
@@ -503,6 +491,7 @@ const bot = new GeweBot({
 | `Revoke`         | 撤回消息     |
 | `Pat`            | 拍一拍       |
 | `Location`       | 位置消息     |
+| 更多请参阅 `.d.ts` 的 `MessageStatic.type`|
 
 ### Friendship 类方法表
 
