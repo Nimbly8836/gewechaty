@@ -479,6 +479,8 @@ declare module 'gewechaty' {
 
         static fromFile(filepath: string, time?: number): Filebox;
 
+        static fromBuff(fileBuff: Buffer, fileName: string, forceType?: string, time?: number): Filebox;
+
         static toDownload(url: string, type?: string, name?: string): Filebox;
 
         static getFileType(fileName: string): 'image' | 'video' | 'audio' | 'file' | 'unknown';
