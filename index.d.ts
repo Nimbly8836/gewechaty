@@ -10,8 +10,8 @@ declare module 'gewechaty' {
         use_cache: boolean;
 
         start(): Promise<{
-            app: import('koa');
-            router: import('koa-router');
+            app: Koa;
+            router: Router;
         }>;
 
         on(event: 'message', listener: (msg: Message) => void): void;
@@ -101,6 +101,7 @@ declare module 'gewechaty' {
         route?: string;
         use_cache?: boolean;
         cache_path?: string;
+      dbFileName?: string;
     }
 
     export interface ContactSelf {

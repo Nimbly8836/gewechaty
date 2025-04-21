@@ -1,6 +1,6 @@
 # gewechaty
 
-## 由于依赖项目Gewechat镜像目前已经停止下载，本项目不再维护（已有镜像的用户可以继续使用）。
+> 基于Gewechat的微信机器人插件
 
 ## 一、简介
 
@@ -356,6 +356,7 @@ const bot = new GeweBot({
   base_api: process.env.WEGE_BASE_API_URL, // 基础api地址base_api 默认为 `http://本机ip:2531/v2/api`
   file_api: process.env.WEGE_FILE_API_URL, // 文件api地址base_api 默认为 `http://本机ip:2532/download`,
   data_dir: './data', // 数据存储路径 默认为工作目录下的data文件夹
+  dbFileName: 'botCache' // 可选, 自定义sqlite数据库文件名，默认文件名: ${appid}.db
 });
 // 如果docker 和GeweBot在同一台电脑上 可以直接使用 new GeweBot() 即可
 ```
@@ -391,13 +392,14 @@ const bot = new GeweBot({
 | `async say(textOrContactOrFileOrUrl)` | `Promise<ResponseMsg>` | 回复消息。                                             |
 | `type()`                              | `string`               | 获取消息的类型。参考 MessageType                       |
 | `self()`                              | `boolean`              | 判断是否为自己发的消息。                               |
+| `async mention`                       | `Promise<[Contact]>`   | 返回被@的contact 列表                                 |
 | `async mentionSelf()`                 | `Promise`              | 判断是否自己被@。                                      |
 | `async forward(Contact)`              | `Promise`              | 转发消息。                                             |
 | `async quote(text)`                   | `Promise`              | 引用消息（传入一个字符串）。                             |
 | `date()`                              | `Date`                 | 获取消息的日期。                                       |
 | `age()`                               | `number`               | 获取消息的年龄（以秒为单位）。                           |
 | `async toFileBox(type = 2)`           | `Promise<FileBox>`     | 将消息转换为 FileBox 对象，用于图片消息type为图片质量。 |
-| `getXml2Json(xml)`                    | `Object`               | 将 XML 解析为 JSON 对象。                              |
+| `static getXmlToJson(xml)`            | `Object`               | 将 XML 解析为 JSON 对象。                              |
 | `static async find(query)`            | `Promise<Contact>`     | (由于未保存聊天信息，暂不支持)                         |
 | `static async findAll(queryArgs)`     | `Promise<[Contact]>`   | （由于未保存聊天信息，暂不支持 ）                        |
 
@@ -421,7 +423,7 @@ const bot = new GeweBot({
 | `province()`                          | `string`       | 返回联系人的省份信息。                                                           |
 | `city()`                              | `string`       | 返回联系人的城市信息。                                                           |
 | `async avatar()`                      | `Promise`      | 返回联系人的头像 URL。                                                           |
-| `async sync()`                        | `Promise`      | 同步联系人信息，同步后会自动更新本地缓存。                                      |
+| `async sync()`                        | `Promise`      | 同步联系人信息，同步后会自动更新本地缓存。                                        |
 | `self()`                              | `boolean`      | 判断该联系人是否为当前用户自己。                                                 |
 
 ### Contact 类静态方法表

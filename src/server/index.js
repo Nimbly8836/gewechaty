@@ -1,5 +1,5 @@
 import koa from 'koa'
-import * as koaRouter from 'koa-router'
+import Router from 'koa-router'
 
 const { bodyParser } = require('@koa/bodyparser')
 import JSONbig from 'json-bigint'
@@ -28,7 +28,7 @@ export let staticUrl = 'static'
 export let proxyUrl = ''
 const ip = getLocalIPAddress()
 const app = new koa()
-const router = new koaRouter()
+const router = new Router()
 // 使用 bodyParser 解析 POST 请求的 body
 
 function delay(ms) {
@@ -55,6 +55,11 @@ export const startServe = async (option) => {
   router.post(option.route, async (ctx) => {
     try{
       const body = JSONbig({ storeAsString: true }).parse(ctx.request.rawBody); // 获取 POST 请求的 body 数据
+      // 兼容新版本 key 值变化
+      body.Appid = body.Appid || body.appid
+      body.TypeName = body.TypeName || body.type_name
+      body.Data = body.Data || body.data
+
       if(option.debug){
         console.log(body);
       }
@@ -95,12 +100,15 @@ export const startServe = async (option) => {
       }else if(body && body.TypeName === 'ModContacts'){ // 好友消息， 群信息变更
         // 消息hanlder
         const id = body.Data?.UserName?.string||''
-        if(id.endsWith('@chatroom')){ // 群消息
+        // 没有群头像的情况则被群主删除
+        if(id.endsWith('@chatroom') && body.Data?.SmallHeadImgUrl){ // 群消息
           const oldInfo = db.findOneByChatroomId(id)
           const newInfo = await getRoomLiveInfo(id)
           // 群聊200人以上无法直接扫码进群，需要邀请，因此增加特殊处理
-          if (oldInfo.memberList.length >= 200 || body.Data?.ImgFlag!=1) {
+          if (oldInfo && (oldInfo.memberList.length >= 200 || body.Data?.ImgFlag!=1)) {
             // 比较成员列表
+            newInfo.memberList = newInfo.memberList || []
+            oldInfo.memberList = oldInfo.memberList || []
             const obj = compareMemberLists(oldInfo.memberList, newInfo.memberList)
             if(obj.added.length > 0){
               obj.added.map((item) => {
@@ -118,6 +126,8 @@ export const startServe = async (option) => {
             if(body.Data.NickName.string !== oldInfo.nickName){ // 群名称变动
               roomEmitter.emit(`topic:${id}`, new Room(newInfo), body.Data.NickName.string, oldInfo.nickName)
             }
+            db.updateRoom(id, newInfo)
+          }else{
             db.updateRoom(id, newInfo)
           }
         }
@@ -209,7 +219,7 @@ export const startServe = async (option) => {
         // setAppId()
         if (oldToken !== currentToken && db.exists(join(option.data_dir, oldAppId + '.db'))) { // token 变化，且旧数据库文件存在
             // 用拷贝-删除替代重命名，以避免旧的数据库文件被占用导致无法重命名
-            await fsPromise.copyFile(join(option.data_dir, oldAppId + '.db'), join(option.data_dir, currentAppId + '.db'))
+            await fsPromise.copyFile(join(option.data_dir, oldAppId + '.db'), dbPath)
             // 删除失败只会在控制台输出错误，不会影响程序运行
             fsPromise.rm(join(option.data_dir, oldAppId + '.db')).catch(console.error)
 

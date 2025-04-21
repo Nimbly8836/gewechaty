@@ -5,6 +5,7 @@ import { getRoomInfo } from '@/action/room'
 import { toFileBox } from '@/action/file'
 import { Filebox } from '@/class/FILEBOX'
 import { MessageType } from '@/type/MessageType'
+import { Contact } from "@/class/CONTACT";
 
 // 消息类
 export class Message {
@@ -44,7 +45,7 @@ export class Message {
     this._status = data.Data.Status || null
     this._msgSource = data.Data.MsgSource || null
 
-    if (this.isRoom) { // 执行一次 自动插入房间数据
+    if (this.isRoom && this.type() !== MessageType.RoomDelete) { // 执行一次 自动插入房间数据
       getRoomInfo(this.roomId)
     }
   }
@@ -94,11 +95,27 @@ export class Message {
   self () {
     return this._self;
   }
-  // 获取@的联系人 ..todo
+  // 获取@的联系人
   async mention () {
     // 根据消息内容模拟提到的联系人
-    console.log('暂不支持')
-    return null;
+    if (!this.isRoom || !this._msgSource) {
+      return [];
+    }
+    const result = Message.getXmlToJson(this._msgSource);
+    const atUserList = result.msgsource.atuserlist?.split(',');
+
+    const room = await getRoomInfo(this.roomId);
+    const mentionList = []
+    atUserList.forEach(atUser => {
+      const contact = room.memberList.find(member => member.wxid === atUser);
+      if (contact) {
+        mentionList.push(new Contact(contact))
+      }else{
+        mentionList.push(atUser) // room 中没有的话， 直接返回wxid
+      }
+    })
+
+    return mentionList;
   }
   // 是否被@了
   async mentionSelf () {
@@ -162,7 +179,9 @@ export class Message {
     let msg = {
       title,
       msgid: this._newMsgId,
-      wxid
+      wxid,
+      type: this._type,
+      content: this._text,
     }
 
     return quote(msg, wxid)
@@ -249,6 +268,9 @@ export class Message {
         case 56:
           return MessageType.RoomVoip; // 群语音
         case 10000:
+          if(this.text().includes('移出群聊')){
+            return MessageType.RoomDelete;
+          }
           //群通知
           break;
         case 10002:
