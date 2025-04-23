@@ -180,6 +180,7 @@ export const say = async (content, toWxid, ats) => {
       throw new Error('无法发送的消息类型')
     }
   }catch(e){
+    throw new Error('发送消息错误', e)
     console.error(e)
   }
 }
@@ -291,8 +292,8 @@ export const forward = async (content, contact, type) => {
         xml: content
       })
     default:
-      console.log(type)
       console.error('无法转发的消息类型')
+      throw new Error('无法转发的消息类型', type)
   }
 
 }

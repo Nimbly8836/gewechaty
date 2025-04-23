@@ -1,6 +1,8 @@
 import {type MyDB, type RoomMemberInDB} from './src/sql/index.d';
 import type * as Koa from 'koa';
 import type * as Router from 'koa-router';
+// import {Buffer} from "buffer";
+
 
 declare module 'gewechaty' {
     export class GeweBot {
